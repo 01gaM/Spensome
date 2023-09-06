@@ -12,7 +12,7 @@
         android:theme="@style/Theme.Spensome"
         tools:targetApi="31">
         <activity
-            android:name=".MainActivity"
+            android:name="com.spensome.MainActivity"
             android:exported="true"
             android:theme="@style/Theme.Spensome">
             <intent-filter>

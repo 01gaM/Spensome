@@ -1,4 +1,4 @@
-package com.example.spensome.ui.wishlist
+package com.spensome.ui.wishlist
 
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
@@ -33,9 +33,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.spensome.R
-import com.example.spensome.data.ProductsRepository
-import com.example.spensome.model.Product
-import com.example.spensome.ui.theme.SpensomeTheme
+import com.spensome.data.ProductsRepository
+import com.spensome.model.Product
+import com.spensome.ui.theme.SpensomeTheme
 
 @Composable
 fun WishListScreen(

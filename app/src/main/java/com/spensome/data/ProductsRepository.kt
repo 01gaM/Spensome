@@ -1,6 +1,6 @@
-package com.example.spensome.data
+package com.spensome.data
 
-import com.example.spensome.model.Product
+import com.spensome.model.Product
 
 object ProductsRepository {
     val products: List<Product> = listOf(

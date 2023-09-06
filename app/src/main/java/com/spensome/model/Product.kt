@@ -1,4 +1,4 @@
-package com.example.spensome.model
+package com.spensome.model
 
 data class Product(
     val title: String,
