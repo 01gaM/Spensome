@@ -1,13 +1,14 @@
 package com.example.spensome.ui.wishlist
 
+import android.content.res.Configuration
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -25,6 +26,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -42,14 +44,14 @@ fun WishListScreen(
 ) {
     Column(
         modifier = modifier
-            .background(color = Color.White)
+            .background(color = MaterialTheme.colorScheme.background)
             .fillMaxSize(),
         verticalArrangement = Arrangement.Center
     ) {
         if (products.isEmpty()) {
             Text(
                 modifier = Modifier.align(Alignment.CenterHorizontally),
-                text = "Wish list is empty!",
+                text = stringResource(id = R.string.wishlist_empty_message),
                 color = Color.Black.copy(alpha = 0.5f),
                 fontWeight = FontWeight.Bold,
                 fontSize = 16.sp
@@ -69,40 +71,49 @@ fun WishListItem(
 ) {
     Card(
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        modifier = modifier.clickable {
-            // TODO
-        }
+        modifier = modifier
     ) {
-        Column(
+        Box(
+            contentAlignment = Alignment.TopCenter,
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(dimensionResource(id = R.dimen.padding_medium)),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+                .fillMaxSize()
+                .clickable {
+                    // TODO
+                }
         ) {
-            Image(
-                painter = painterResource(
-                    id = product.imageRes ?: R.drawable.ic_launcher_foreground
-                ),
-                contentDescription = "Product item image",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .clip(shape = MaterialTheme.shapes.medium)
-                    .background(color = MaterialTheme.colorScheme.secondary)
-            )
-            Text(
-                text = product.title,
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(
-                    top = dimensionResource(id = R.dimen.padding_small)
+            Column(
+                modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_large)),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Image(
+                    painter = painterResource(
+                        id = product.imageRes ?: R.drawable.ic_launcher_foreground
+                    ),
+                    contentDescription = stringResource(
+                        id = R.string.wishlist_item_icon_description
+                    ),
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .clip(shape = MaterialTheme.shapes.medium)
+                        .background(color = MaterialTheme.colorScheme.secondary)
                 )
-            )
-            Text(
-                text = "${product.price} $",
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.labelMedium
-            )
+                Text(
+                    text = "${product.price} $",
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(
+                        top = dimensionResource(id = R.dimen.padding_medium),
+                        bottom = dimensionResource(id = R.dimen.padding_small)
+                    )
+                )
+                Text(
+                    text = product.title,
+                    textAlign = TextAlign.Center,
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.secondary
+                )
+            }
         }
     }
 }
@@ -115,18 +126,20 @@ fun WishList(
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         modifier = modifier,
-        contentPadding = PaddingValues(all = dimensionResource(id = R.dimen.padding_medium)),
+        contentPadding = PaddingValues(
+            all = dimensionResource(id = R.dimen.padding_large)
+        ),
         verticalArrangement = Arrangement.spacedBy(
-            space = dimensionResource(id = R.dimen.padding_medium)
+            space = dimensionResource(id = R.dimen.padding_large)
         ),
         horizontalArrangement = Arrangement.spacedBy(
-            space = dimensionResource(id = R.dimen.padding_medium)
+            space = dimensionResource(id = R.dimen.padding_large)
         )
     ) {
         items(products) { product ->
             WishListItem(
                 product = product,
-                modifier = Modifier.height(220.dp)
+                modifier = Modifier.height(210.dp)
             )
         }
     }
@@ -134,7 +147,11 @@ fun WishList(
 
 // region preview
 
-@Preview(heightDp = 720, widthDp = 360)
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
+@Preview(
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    name = "NightMode"
+)
 @Composable
 private fun WishListScreenPreview() {
     SpensomeTheme {
@@ -142,7 +159,10 @@ private fun WishListScreenPreview() {
     }
 }
 
-@Preview
+@Preview(
+    heightDp = 200,
+    widthDp = 200
+)
 @Composable
 private fun WishListItemPreview() {
     SpensomeTheme {
@@ -151,16 +171,6 @@ private fun WishListItemPreview() {
                 title = "Test",
                 price = 105f
             )
-        )
-    }
-}
-
-@Preview
-@Composable
-private fun WishListPreview() {
-    SpensomeTheme {
-        WishList(
-            products = ProductsRepository.products
         )
     }
 }
