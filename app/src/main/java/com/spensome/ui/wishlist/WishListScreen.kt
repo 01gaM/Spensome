@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
@@ -16,50 +17,70 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.TopAppBarScrollBehavior
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.example.spensome.R
 import com.spensome.data.ProductsRepository
 import com.spensome.model.Product
 import com.spensome.ui.theme.SpensomeTheme
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WishListScreen(
     modifier: Modifier = Modifier,
     products: List<Product>
 ) {
-    Column(
-        modifier = modifier
-            .background(color = MaterialTheme.colorScheme.background)
-            .fillMaxSize(),
-        verticalArrangement = Arrangement.Center
-    ) {
-        if (products.isEmpty()) {
-            Text(
-                modifier = Modifier.align(Alignment.CenterHorizontally),
-                text = stringResource(id = R.string.wishlist_empty_message),
-                color = Color.Black.copy(alpha = 0.5f),
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+
+    Scaffold(
+        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        topBar = {
+            TopAppBar(
+                title = { WishListTopBar() },
+                scrollBehavior = scrollBehavior,
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background
+                )
             )
-        } else {
-            WishList(
-                products = ProductsRepository.products
-            )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = modifier
+                .background(color = MaterialTheme.colorScheme.background)
+                .fillMaxSize()
+                .padding(paddingValues = paddingValues),
+            verticalArrangement = Arrangement.Center
+        ) {
+            if (products.isEmpty()) {
+                Text(
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    text = stringResource(id = R.string.wishlist_empty_message),
+                    style = MaterialTheme.typography.titleLarge,
+                    color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.5f)
+                )
+            } else {
+                WishList(
+                    products = ProductsRepository.products
+                )
+            }
         }
     }
 }
@@ -127,7 +148,10 @@ fun WishList(
         columns = GridCells.Fixed(2),
         modifier = modifier,
         contentPadding = PaddingValues(
-            all = dimensionResource(id = R.dimen.padding_large)
+            start = dimensionResource(id = R.dimen.padding_large),
+            end = dimensionResource(id = R.dimen.padding_large),
+            top = dimensionResource(id = R.dimen.padding_medium),
+            bottom = dimensionResource(id = R.dimen.padding_large)
         ),
         verticalArrangement = Arrangement.spacedBy(
             space = dimensionResource(id = R.dimen.padding_large)
@@ -143,6 +167,22 @@ fun WishList(
             )
         }
     }
+}
+
+@Preview
+@Composable
+fun WishListTopBar(modifier: Modifier = Modifier) {
+    Text(
+        text = stringResource(id = R.string.wishlist_screen_titile),
+        textAlign = TextAlign.Center,
+        color = MaterialTheme.colorScheme.secondary,
+        style = MaterialTheme.typography.titleLarge,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(
+                all = dimensionResource(id = R.dimen.padding_large)
+            )
+    )
 }
 
 // region preview

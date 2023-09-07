@@ -20,6 +20,11 @@ val Typography = Typography(
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp
     ),
+    titleLarge = TextStyle(
+        fontFamily = DmSans,
+        fontWeight = FontWeight.Bold,
+        fontSize = 24.sp
+    ),
     titleMedium = TextStyle(
         fontFamily = DmSans,
         fontWeight = FontWeight.Bold,
