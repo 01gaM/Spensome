@@ -3,4 +3,9 @@
     <string name="wishlist_screen_titile">Wish list</string>
     <string name="wishlist_empty_message">Wish list is empty!</string>
     <string name="wishlist_item_icon_description">Product item image</string>
+    <string name="product_title">Title:&#160;</string>
+    <string name="product_price">Price:&#160;</string>
+    <string name="product_description">Description:&#160;</string>
+    <string name="product_link">Link:&#160;</string>
+    <string name="product_image">Image:&#160;</string>
 </resources>
