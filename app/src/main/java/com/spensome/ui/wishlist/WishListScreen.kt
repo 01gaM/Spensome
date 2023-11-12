@@ -19,11 +19,12 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.TopAppBarScrollBehavior
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -46,9 +47,11 @@ import com.spensome.ui.theme.SpensomeTheme
 @Composable
 fun WishListScreen(
     modifier: Modifier = Modifier,
-    products: List<Product>
+    state: WishListState = WishListState(),
+    onEvent: (WishListEvent) -> Unit = {}
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+    val bottomSheetState = rememberModalBottomSheetState()
 
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -69,7 +72,7 @@ fun WishListScreen(
                 .padding(paddingValues = paddingValues),
             verticalArrangement = Arrangement.Center
         ) {
-            if (products.isEmpty()) {
+            if (state.productsList.isEmpty()) {
                 Text(
                     modifier = Modifier.align(Alignment.CenterHorizontally),
                     text = stringResource(id = R.string.wishlist_empty_message),
@@ -78,7 +81,22 @@ fun WishListScreen(
                 )
             } else {
                 WishList(
-                    products = ProductsRepository.products
+                    products = ProductsRepository.products,
+                    onProductSelected = { product ->
+                        onEvent(WishListEvent.SelectProduct(product))
+                    }
+                )
+            }
+        }
+
+        state.selectedProduct?.let { product ->
+            ModalBottomSheet(
+                sheetState = bottomSheetState,
+                onDismissRequest = { onEvent(WishListEvent.CloseSelectedProduct) }
+            ) {
+                ProductScreen(
+                    product = product,
+                    modifier = Modifier.padding(bottom = 45.dp)
                 )
             }
         }
@@ -88,7 +106,8 @@ fun WishListScreen(
 @Composable
 fun WishListItem(
     modifier: Modifier = Modifier,
-    product: Product
+    product: Product,
+    onProductSelected: (Product) -> Unit = {}
 ) {
     Card(
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
@@ -98,9 +117,7 @@ fun WishListItem(
             contentAlignment = Alignment.TopCenter,
             modifier = Modifier
                 .fillMaxSize()
-                .clickable {
-                    // TODO
-                }
+                .clickable { onProductSelected(product) }
         ) {
             Column(
                 modifier = Modifier.padding(dimensionResource(id = R.dimen.padding_large)),
@@ -142,7 +159,8 @@ fun WishListItem(
 @Composable
 fun WishList(
     modifier: Modifier = Modifier,
-    products: List<Product>
+    products: List<Product>,
+    onProductSelected: (Product) -> Unit = {}
 ) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
@@ -163,7 +181,8 @@ fun WishList(
         items(products) { product ->
             WishListItem(
                 product = product,
-                modifier = Modifier.height(210.dp)
+                modifier = Modifier.height(210.dp),
+                onProductSelected = onProductSelected
             )
         }
     }
@@ -195,7 +214,9 @@ fun WishListTopBar(modifier: Modifier = Modifier) {
 @Composable
 private fun WishListScreenPreview() {
     SpensomeTheme {
-        WishListScreen(products = ProductsRepository.products)
+        WishListScreen(
+            state = WishListState().copy(productsList = ProductsRepository.products)
+        )
     }
 }
 

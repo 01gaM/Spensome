@@ -30,7 +30,6 @@ fun ProductScreen(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .background(color = MaterialTheme.colorScheme.background)
             .padding(all = dimensionResource(id = R.dimen.padding_large)),
         verticalAlignment = Alignment.CenterVertically
     ) {
