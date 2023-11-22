@@ -14,12 +14,9 @@ import com.spensome.ui.wishlist.WishListViewModel
 class MainActivity : ComponentActivity() {
     private val viewModel by viewModels<WishListViewModel>()
 
-    init {
-        viewModel.updateProductsList(products = ProductsRepository.products)
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        loadProductsList()
         setContent {
             SpensomeTheme {
                 val state by viewModel.state.collectAsState()
@@ -29,5 +26,9 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
+    }
+
+    private fun loadProductsList() {
+        viewModel.updateProductsList(products = ProductsRepository.products)
     }
 }

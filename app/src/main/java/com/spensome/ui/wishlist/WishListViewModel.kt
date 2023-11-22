@@ -14,6 +14,17 @@ class WishListViewModel : ViewModel() {
         when (event) {
             WishListEvent.CloseSelectedProduct -> updateSelectedProduct(selectedProduct = null)
             is WishListEvent.SelectProduct -> updateSelectedProduct(selectedProduct = event.product)
+            WishListEvent.AddNewProduct -> {
+                saveNewProduct(
+                    product = Product(
+                        title = "New test product!",
+                        price = 55.5f
+                    )
+                )
+                // TODO - navigate to "new product" screen
+            }
+
+            is WishListEvent.SaveNewProduct -> saveNewProduct(product = event.product)
         }
     }
 
@@ -28,6 +39,15 @@ class WishListViewModel : ViewModel() {
     private fun updateSelectedProduct(selectedProduct: Product?) {
         _state.update {
             it.copy(selectedProduct = selectedProduct)
+        }
+    }
+
+    private fun saveNewProduct(product: Product) {
+        // TODO: scroll down after new product saved
+        _state.update {
+            val newProductList = it.productsList.toMutableList()
+            newProductList.add(product)
+            it.copy(productsList = newProductList)
         }
     }
 
