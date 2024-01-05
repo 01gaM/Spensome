@@ -1,4 +1,4 @@
-package com.spensome.ui.wishlist
+package com.spensome.ui.screens.wishlist
 
 import com.spensome.model.Product
 

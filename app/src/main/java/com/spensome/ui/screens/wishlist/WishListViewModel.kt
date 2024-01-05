@@ -1,4 +1,4 @@
-package com.spensome.ui.wishlist
+package com.spensome.ui.screens.wishlist
 
 import androidx.lifecycle.ViewModel
 import com.spensome.model.Product
@@ -12,19 +12,11 @@ class WishListViewModel : ViewModel() {
 
     fun onEvent(event: WishListEvent) {
         when (event) {
-            WishListEvent.CloseSelectedProduct -> updateSelectedProduct(selectedProduct = null)
-            is WishListEvent.SelectProduct -> updateSelectedProduct(selectedProduct = event.product)
-            WishListEvent.AddNewProduct -> {
-                saveNewProduct(
-                    product = Product(
-                        title = "New test product!",
-                        price = 55.5f
-                    )
-                )
-                // TODO - navigate to "new product" screen
-            }
+            is WishListEvent.CloseSelectedProduct -> updateSelectedProduct(selectedProduct = null)
 
-            is WishListEvent.SaveNewProduct -> saveNewProduct(product = event.product)
+            is WishListEvent.SelectProduct -> updateSelectedProduct(selectedProduct = event.product)
+
+            is WishListEvent.AddNewProduct -> addNewProduct(product = event.product)
         }
     }
 
@@ -42,7 +34,7 @@ class WishListViewModel : ViewModel() {
         }
     }
 
-    private fun saveNewProduct(product: Product) {
+    private fun addNewProduct(product: Product) {
         // TODO: scroll down after new product saved
         _state.update {
             val newProductList = it.productsList.toMutableList()

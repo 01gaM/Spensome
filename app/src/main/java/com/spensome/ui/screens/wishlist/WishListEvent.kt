@@ -1,10 +1,9 @@
-package com.spensome.ui.wishlist
+package com.spensome.ui.screens.wishlist
 
 import com.spensome.model.Product
 
 sealed interface WishListEvent {
     data class SelectProduct(val product: Product) : WishListEvent
     object CloseSelectedProduct : WishListEvent
-    object AddNewProduct : WishListEvent
-    data class SaveNewProduct(val product: Product) : WishListEvent
+    data class AddNewProduct(val product: Product) : WishListEvent
 }

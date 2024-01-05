@@ -1,4 +1,4 @@
-package com.spensome.ui.wishlist
+package com.spensome.ui.screens.wishlist.selected_product
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
@@ -27,6 +27,7 @@ fun ProductScreen(
     modifier: Modifier = Modifier,
     product: Product
 ) {
+    // TODO: add editing
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -61,11 +62,6 @@ fun ProductScreen(
             )
 
             ProductParameter(
-                parameterName = R.string.product_description,
-                parameterValue = product.description
-            )
-
-            ProductParameter(
                 parameterName = R.string.product_link,
                 parameterValue = product.link
             )
@@ -79,15 +75,17 @@ fun ProductParameter(
     @StringRes parameterName: Int,
     parameterValue: String?
 ) {
-    Row(modifier = modifier) {
-        Text(
-            text = stringResource(id = parameterName),
-            style = MaterialTheme.typography.titleMedium
-        )
-        Text(
-            text = parameterValue ?: "None",
-            style = MaterialTheme.typography.bodyLarge
-        )
+    if (!parameterValue.isNullOrBlank()) {
+        Row(modifier = modifier) {
+            Text(
+                text = stringResource(id = parameterName) + ": ",
+                style = MaterialTheme.typography.titleMedium
+            )
+            Text(
+                text = parameterValue,
+                style = MaterialTheme.typography.bodyLarge
+            )
+        }
     }
 }
 

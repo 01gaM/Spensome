@@ -1,4 +1,4 @@
-package com.spensome.ui.wishlist
+package com.spensome.ui.screens.wishlist
 
 import android.content.res.Configuration
 import androidx.compose.foundation.Image
@@ -43,9 +43,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.example.spensome.R
 import com.spensome.data.ProductsRepository
 import com.spensome.model.Product
+import com.spensome.navigation.WishListDestination
+import com.spensome.ui.screens.wishlist.selected_product.ProductScreen
 import com.spensome.ui.theme.SpensomeTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -53,7 +56,8 @@ import com.spensome.ui.theme.SpensomeTheme
 fun WishListScreen(
     modifier: Modifier = Modifier,
     state: WishListState = WishListState(),
-    onEvent: (WishListEvent) -> Unit = {}
+    onEvent: (WishListEvent) -> Unit = {},
+    navController: NavController? = null
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
     val bottomSheetState = rememberModalBottomSheetState()
@@ -69,10 +73,11 @@ fun WishListScreen(
                 )
             )
         },
-        floatingActionButton = {
+        floatingActionButton = { // TODO: hide on scroll
             FloatingActionButton(
                 shape = CircleShape,
-                onClick = { onEvent(WishListEvent.AddNewProduct) }
+                containerColor = MaterialTheme.colorScheme.surface,
+                onClick = { navController?.navigate(route = WishListDestination.NEW_PRODUCT) }
             ) {
                 Icon(Icons.Filled.Add, "Floating action button")
             }
