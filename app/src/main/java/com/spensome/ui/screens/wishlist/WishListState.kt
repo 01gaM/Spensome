@@ -4,5 +4,6 @@ import com.spensome.model.Product
 
 data class WishListState(
     val productsList: List<Product> = emptyList(),
-    val selectedProduct: Product? = null
+    val selectedProduct: Product? = null,
+    val shouldScrollToBottom: Boolean = false
 )

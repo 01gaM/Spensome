@@ -13,8 +13,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -32,6 +34,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -61,6 +64,14 @@ fun WishListScreen(
 ) {
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
     val bottomSheetState = rememberModalBottomSheetState()
+    val gridState = rememberLazyGridState()
+
+    if (state.shouldScrollToBottom) {
+        LaunchedEffect(true) {
+            gridState.animateScrollToItem(index = state.productsList.size - 1)
+            onEvent(WishListEvent.ScrollToBottom)
+        }
+    }
 
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -100,6 +111,7 @@ fun WishListScreen(
             } else {
                 WishList(
                     products = state.productsList,
+                    gridState = gridState,
                     onProductSelected = { product ->
                         onEvent(WishListEvent.SelectProduct(product))
                     }
@@ -178,6 +190,7 @@ fun WishListItem(
 fun WishList(
     modifier: Modifier = Modifier,
     products: List<Product>,
+    gridState: LazyGridState,
     onProductSelected: (Product) -> Unit = {}
 ) {
     LazyVerticalGrid(
@@ -194,7 +207,8 @@ fun WishList(
         ),
         horizontalArrangement = Arrangement.spacedBy(
             space = dimensionResource(id = R.dimen.padding_large)
-        )
+        ),
+        state = gridState
     ) {
         items(products) { product ->
             WishListItem(

@@ -17,6 +17,8 @@ class WishListViewModel : ViewModel() {
             is WishListEvent.SelectProduct -> updateSelectedProduct(selectedProduct = event.product)
 
             is WishListEvent.AddNewProduct -> addNewProduct(product = event.product)
+
+            is WishListEvent.ScrollToBottom -> updateShouldScrollToBottom(shouldScroll = false)
         }
     }
 
@@ -35,11 +37,19 @@ class WishListViewModel : ViewModel() {
     }
 
     private fun addNewProduct(product: Product) {
-        // TODO: scroll down after new product saved
         _state.update {
             val newProductList = it.productsList.toMutableList()
             newProductList.add(product)
-            it.copy(productsList = newProductList)
+            it.copy(
+                productsList = newProductList,
+                shouldScrollToBottom = true
+            )
+        }
+    }
+
+    private fun updateShouldScrollToBottom(shouldScroll: Boolean) {
+        _state.update {
+            it.copy(shouldScrollToBottom = shouldScroll)
         }
     }
 
