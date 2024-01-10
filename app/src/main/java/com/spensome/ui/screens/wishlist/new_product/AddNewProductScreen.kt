@@ -105,7 +105,8 @@ fun AddNewProductScreen(
             modifier = Modifier.padding(
                 bottom = dimensionResource(id = R.dimen.padding_medium)
             ),
-            isRequired = true
+            isRequired = true,
+            suffix = " $"
         )
 
         ProductField(
@@ -159,7 +160,8 @@ private fun ProductField(
     fieldValueState: MutableState<TextFieldValue>,
     productFieldType: ProductFieldType = ProductFieldType.STRING,
     isLastField: Boolean = false,
-    isRequired: Boolean = false
+    isRequired: Boolean = false,
+    suffix: String? = null
 ) {
     var isError by remember { mutableStateOf(false) }
     OutlinedTextField(
@@ -184,7 +186,8 @@ private fun ProductField(
                 ProductFieldType.LINK -> KeyboardType.Uri
             }
         ),
-        isError = isError
+        isError = isError,
+        suffix = { suffix?.let { Text(it) } }
     )
 
     if (isError) {
