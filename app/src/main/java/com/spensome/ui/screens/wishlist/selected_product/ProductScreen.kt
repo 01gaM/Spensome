@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,6 +19,8 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import coil.compose.rememberAsyncImagePainter
 import com.example.spensome.R
 import com.spensome.model.Product
 import com.spensome.ui.theme.SpensomeTheme
@@ -27,7 +30,8 @@ fun ProductScreen(
     modifier: Modifier = Modifier,
     product: Product
 ) {
-    // TODO: add editing
+    // TODO: add item editing
+    val imagePainter = rememberAsyncImagePainter(model = product.imageUri)
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -35,14 +39,17 @@ fun ProductScreen(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Image(
-            painter = painterResource(
-                id = product.imageRes ?: R.drawable.ic_launcher_foreground
-            ),
+            painter = if (product.imageUri != null) {
+                imagePainter
+            } else {
+                painterResource(id = R.drawable.ic_launcher_foreground)
+            },
             contentDescription = "Wish list item image",
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .padding(all = dimensionResource(id = R.dimen.padding_medium))
                 .clip(shape = MaterialTheme.shapes.medium)
+                .size(size = 120.dp)
                 .background(color = MaterialTheme.colorScheme.secondaryContainer)
         )
 

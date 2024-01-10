@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -47,6 +48,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import coil.compose.rememberAsyncImagePainter
 import com.example.spensome.R
 import com.spensome.data.ProductsRepository
 import com.spensome.model.Product
@@ -139,6 +141,7 @@ fun WishListItem(
     product: Product,
     onProductSelected: (Product) -> Unit = {}
 ) {
+    val imagePainter = rememberAsyncImagePainter(model = product.imageUri)
     Card(
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
         modifier = modifier
@@ -155,15 +158,18 @@ fun WishListItem(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Image(
-                    painter = painterResource(
-                        id = product.imageRes ?: R.drawable.ic_launcher_foreground
-                    ),
+                    painter = if (product.imageUri != null) {
+                        imagePainter
+                    } else {
+                        painterResource(id = R.drawable.ic_launcher_foreground)
+                    },
                     contentDescription = stringResource(
                         id = R.string.wishlist_item_icon_description
                     ),
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .clip(shape = MaterialTheme.shapes.medium)
+                        .size(size = 110.dp)
                         .background(color = MaterialTheme.colorScheme.secondary)
                 )
                 Text(

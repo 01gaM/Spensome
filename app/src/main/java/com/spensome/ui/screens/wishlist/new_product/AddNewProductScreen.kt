@@ -1,15 +1,28 @@
 package com.spensome.ui.screens.wishlist.new_product
 
+import android.content.res.Configuration
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
+
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -21,6 +34,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.dimensionResource
@@ -31,6 +46,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.rememberAsyncImagePainter
 import com.example.spensome.R
 import com.spensome.model.Product
 import com.spensome.ui.theme.SpensomeTheme
@@ -50,6 +66,7 @@ fun AddNewProductScreen(
     val name = remember { mutableStateOf(TextFieldValue()) }
     val price = remember { mutableStateOf(TextFieldValue()) }
     val link = remember { mutableStateOf(TextFieldValue()) }
+    val imageUri = remember { mutableStateOf<Uri?>(null) }
     val focusManager = LocalFocusManager.current
 
     Column(
@@ -101,19 +118,22 @@ fun AddNewProductScreen(
             )
         )
 
+        ImagePicker(imageUriState = imageUri)
+
         Spacer(modifier = Modifier.weight(weight = 1f))
 
         Button(
             modifier = Modifier
                 .fillMaxWidth()
                 .align(alignment = Alignment.CenterHorizontally),
+            enabled = name.value.text.isNotBlank() && price.value.text.isNotBlank(),
             onClick = {
                 onProductAdded(
                     Product(
                         title = name.value.text,
                         price = price.value.text.toFloatOrNull() ?: 0f,
                         link = link.value.text,
-                        imageRes = null
+                        imageUri = imageUri.value
                     )
                 )
             }
@@ -177,9 +197,70 @@ private fun ProductField(
     }
 }
 
+@Composable
+private fun ImagePicker(
+    modifier: Modifier = Modifier,
+    imageUriState: MutableState<Uri?>
+) {
+    // TODO: select image from camera
+    // TODO: delete image, change image
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent(),
+        onResult = { uri ->
+            uri?.let {
+                imageUriState.value = uri
+            }
+        }
+    )
+
+    Column(modifier = modifier) {
+        Text(
+            text = "Image",
+            modifier = Modifier.padding(vertical = 8.dp),
+            color = MaterialTheme.colorScheme.onBackground
+        )
+
+        if (imageUriState.value == null) {
+            Box(
+                modifier = Modifier
+                    .size(100.dp)
+                    .clip(shape = RoundedCornerShape(size = 4.dp))
+                    .background(color = MaterialTheme.colorScheme.surfaceVariant)
+                    .clickable(onClick = { galleryLauncher.launch("image/*") })
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Add,
+                    contentDescription = null,
+                    modifier = Modifier.padding(all = 4.dp),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+
+                Text(
+                    text = "Pick image",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontSize = 14.sp,
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            }
+        } else {
+            Image(
+                painter = rememberAsyncImagePainter(model = imageUriState.value),
+                contentDescription = null,
+                modifier = Modifier
+                    .clip(shape = RoundedCornerShape(size = 4.dp))
+                    .size(size = 100.dp)
+            )
+        }
+    }
+}
+
 // region preview
 
-@Preview
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
+@Preview(
+    uiMode = Configuration.UI_MODE_NIGHT_YES,
+    name = "NightMode"
+)
 @Composable
 private fun AddNewProductScreenPreview() {
     SpensomeTheme {
