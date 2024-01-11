@@ -21,10 +21,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
@@ -57,6 +62,7 @@ private enum class ProductFieldType {
     LINK
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddNewProductScreen(
     modifier: Modifier = Modifier,
@@ -69,86 +75,97 @@ fun AddNewProductScreen(
     val imageUri = remember { mutableStateOf<Uri?>(null) }
     val focusManager = LocalFocusManager.current
 
-    Column(
-        modifier = modifier
-            .background(color = MaterialTheme.colorScheme.background)
-            .fillMaxSize()
-            .pointerInput(Unit) {
-                detectTapGestures(
-                    onTap = { focusManager.clearFocus() }
-                )
-            }
-            .padding(16.dp)
-    ) {
-        Text(
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .padding(bottom = 16.dp),
-            text = "New product",
-            style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.primary
-        )
-
-        ProductField(
-            labelId = R.string.product_title,
-            fieldValueState = name,
-            modifier = Modifier.padding(
-                bottom = dimensionResource(id = R.dimen.padding_medium)
-            ),
-            isRequired = true
-        )
-
-        ProductField(
-            labelId = R.string.product_price,
-            fieldValueState = price,
-            productFieldType = ProductFieldType.NUMBER,
-            modifier = Modifier.padding(
-                bottom = dimensionResource(id = R.dimen.padding_medium)
-            ),
-            isRequired = true,
-            suffix = " $"
-        )
-
-        ProductField(
-            labelId = R.string.product_link,
-            fieldValueState = link,
-            productFieldType = ProductFieldType.LINK,
-            isLastField = true,
-            modifier = Modifier.padding(
-                bottom = dimensionResource(id = R.dimen.padding_medium)
-            )
-        )
-
-        ImagePicker(imageUriState = imageUri)
-
-        Spacer(modifier = Modifier.weight(weight = 1f))
-
-        Button(
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(alignment = Alignment.CenterHorizontally),
-            enabled = name.value.text.isNotBlank() && price.value.text.isNotBlank(),
-            onClick = {
-                onProductAdded(
-                    Product(
-                        title = name.value.text,
-                        price = price.value.text.toFloatOrNull() ?: 0f,
-                        link = link.value.text,
-                        imageUri = imageUri.value
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        text = "New product",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.primary
                     )
-                )
-            }
-        ) {
-            Text(text = "ADD")
+                },
+                navigationIcon = {
+                    IconButton(onClick = onBackClicked) {
+                        Icon(
+                            imageVector = Icons.Filled.ArrowBack,
+                            contentDescription = "Arrow back icon",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+            )
         }
-
-        Button(
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(alignment = Alignment.CenterHorizontally),
-            onClick = onBackClicked
+    ) { innerPadding ->
+        Column(
+            modifier = modifier
+                .background(color = MaterialTheme.colorScheme.background)
+                .fillMaxSize()
+                .pointerInput(Unit) {
+                    detectTapGestures(
+                        onTap = { focusManager.clearFocus() }
+                    )
+                }
+                .padding(
+                    top = innerPadding.calculateTopPadding(),
+                    start = 16.dp,
+                    end = 16.dp,
+                    bottom = 16.dp
+                )
         ) {
-            Text(text = "CANCEL")
+            ProductField(
+                labelId = R.string.product_title,
+                fieldValueState = name,
+                modifier = Modifier.padding(
+                    bottom = dimensionResource(id = R.dimen.padding_medium)
+                ),
+                isRequired = true
+            )
+
+            ProductField(
+                labelId = R.string.product_price,
+                fieldValueState = price,
+                productFieldType = ProductFieldType.NUMBER,
+                modifier = Modifier.padding(
+                    bottom = dimensionResource(id = R.dimen.padding_medium)
+                ),
+                isRequired = true,
+                suffix = " $"
+            )
+
+            // TODO: validate link
+            ProductField(
+                labelId = R.string.product_link,
+                fieldValueState = link,
+                productFieldType = ProductFieldType.LINK,
+                isLastField = true,
+                modifier = Modifier.padding(
+                    bottom = dimensionResource(id = R.dimen.padding_medium)
+                )
+            )
+
+            ImagePicker(imageUriState = imageUri)
+
+            Spacer(modifier = Modifier.weight(weight = 1f))
+
+            Button(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(alignment = Alignment.CenterHorizontally),
+                enabled = name.value.text.isNotBlank() && price.value.text.isNotBlank(),
+                onClick = {
+                    onProductAdded(
+                        Product(
+                            title = name.value.text,
+                            price = price.value.text.toFloatOrNull() ?: 0f,
+                            link = link.value.text,
+                            imageUri = imageUri.value
+                        )
+                    )
+                }
+            ) {
+                Text(text = "ADD TO WISHLIST")
+            }
         }
     }
 }
