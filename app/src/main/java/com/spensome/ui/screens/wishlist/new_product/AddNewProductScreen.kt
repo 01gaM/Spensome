@@ -5,6 +5,7 @@ import android.net.Uri
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.StringRes
+import androidx.compose.foundation.BorderStroke
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -17,17 +18,21 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.rounded.Clear
 import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedIconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -39,9 +44,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.alpha
 
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
@@ -69,6 +75,7 @@ fun AddNewProductScreen(
     onProductAdded: (Product) -> Unit = {},
     onBackClicked: () -> Unit = {}
 ) {
+    // TODO: save state on config change
     val name = remember { mutableStateOf(TextFieldValue()) }
     val price = remember { mutableStateOf(TextFieldValue()) }
     val link = remember { mutableStateOf(TextFieldValue()) }
@@ -241,35 +248,61 @@ private fun ImagePicker(
         )
 
         if (imageUriState.value == null) {
-            Box(
-                modifier = Modifier
-                    .size(100.dp)
-                    .clip(shape = RoundedCornerShape(size = 4.dp))
-                    .background(color = MaterialTheme.colorScheme.surfaceVariant)
-                    .clickable(onClick = { galleryLauncher.launch("image/*") })
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Add,
-                    contentDescription = null,
-                    modifier = Modifier.padding(all = 4.dp),
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-
-                Text(
-                    text = "Pick image",
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontSize = 14.sp,
-                    modifier = Modifier.align(Alignment.Center)
-                )
+            Card(modifier = Modifier.size(100.dp)) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clickable(onClick = { galleryLauncher.launch("image/*") })
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Add,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .padding(all = 4.dp)
+                            .align(Alignment.Center)
+                            .size(80.dp)
+                            .alpha(0.3f),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
             }
+
         } else {
-            Image(
-                painter = rememberAsyncImagePainter(model = imageUriState.value),
-                contentDescription = null,
-                modifier = Modifier
-                    .clip(shape = RoundedCornerShape(size = 4.dp))
-                    .size(size = 100.dp)
-            )
+            Card(
+                modifier = Modifier.size(100.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            ) {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    Image(
+                        painter = rememberAsyncImagePainter(model = imageUriState.value),
+                        contentDescription = null,
+                        modifier = Modifier.size(size = 100.dp),
+                        contentScale = ContentScale.Crop
+                    )
+
+                    OutlinedIconButton(
+                        border = BorderStroke(
+                            width = 2.dp,
+                            color = MaterialTheme.colorScheme.error
+                        ),
+                        colors = IconButtonDefaults.filledIconButtonColors(
+                            containerColor = MaterialTheme.colorScheme.background,
+                            contentColor = MaterialTheme.colorScheme.error
+                        ),
+                        onClick = { imageUriState.value = null },
+                        content = {
+                            Icon(
+                                imageVector = Icons.Rounded.Clear,
+                                contentDescription = "Clear image icon"
+                            )
+                        },
+                        modifier = Modifier
+                            .align(Alignment.TopEnd)
+                            .size(35.dp)
+                            .padding(5.dp)
+                    )
+                }
+            }
         }
     }
 }
