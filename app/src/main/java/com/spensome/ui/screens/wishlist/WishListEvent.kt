@@ -6,5 +6,5 @@ sealed interface WishListEvent {
     data class SelectProduct(val product: Product) : WishListEvent
     object CloseSelectedProduct : WishListEvent
     data class AddNewProduct(val product: Product) : WishListEvent
-    object ScrollToBottom: WishListEvent
+    object ScrollToBottom : WishListEvent
 }

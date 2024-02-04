@@ -31,6 +31,7 @@ val md_theme_light_shadow = Color(0xFF000000)
 val md_theme_light_surfaceTint = Color(0xFF794A99)
 val md_theme_light_outlineVariant = Color(0xFFCDC3CE)
 val md_theme_light_scrim = Color(0xFF000000)
+val md_theme_light_link = Color(0xFF0000EE)
 
 val md_theme_dark_primary = Color(0xFFE3B5FF)
 val md_theme_dark_onPrimary = Color(0xFF471867)
@@ -62,6 +63,7 @@ val md_theme_dark_shadow = Color(0xFF000000)
 val md_theme_dark_surfaceTint = Color(0xFFE3B5FF)
 val md_theme_dark_outlineVariant = Color(0xFF4B454D)
 val md_theme_dark_scrim = Color(0xFF000000)
+val md_theme_dark_link = Color(0xFF6687FF)
 
 
 val seed = Color(0xFF794A99)

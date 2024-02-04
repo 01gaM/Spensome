@@ -3,6 +3,7 @@ package com.spensome.ui.screens.wishlist.selected_product
 import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -14,7 +15,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -32,6 +35,8 @@ fun ProductScreen(
 ) {
     // TODO: add item editing
     val imagePainter = rememberAsyncImagePainter(model = product.imageUri)
+    val uriHandler = LocalUriHandler.current
+
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -70,7 +75,13 @@ fun ProductScreen(
 
             ProductParameter(
                 parameterName = R.string.product_link,
-                parameterValue = product.link
+                parameterValue = product.link,
+                parameterTextColor = SpensomeTheme.linkColor(),
+                modifier = Modifier.clickable {
+                    product.link?.let {
+                        uriHandler.openUri(uri = it)
+                    }
+                }
             )
         }
     }
@@ -80,7 +91,8 @@ fun ProductScreen(
 fun ProductParameter(
     modifier: Modifier = Modifier,
     @StringRes parameterName: Int,
-    parameterValue: String?
+    parameterValue: String?,
+    parameterTextColor: Color = MaterialTheme.colorScheme.onSurface
 ) {
     if (!parameterValue.isNullOrBlank()) {
         Row(modifier = modifier) {
@@ -90,7 +102,8 @@ fun ProductParameter(
             )
             Text(
                 text = parameterValue,
-                style = MaterialTheme.typography.bodyLarge
+                style = MaterialTheme.typography.bodyLarge,
+                color = parameterTextColor
             )
         }
     }

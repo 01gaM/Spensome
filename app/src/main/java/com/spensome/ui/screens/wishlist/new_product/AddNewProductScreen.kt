@@ -165,7 +165,7 @@ fun AddNewProductScreen(
                         Product(
                             title = name.value.text,
                             price = price.value.text.toFloatOrNull() ?: 0f,
-                            link = link.value.text,
+                            link = parseUri(link.value.text),
                             imageUri = imageUri.value
                         )
                     )
@@ -175,6 +175,28 @@ fun AddNewProductScreen(
             }
         }
     }
+}
+
+private fun parseUri(input: String): String {
+    val httpsScheme = "https"
+    val httpScheme = "http"
+    // If the input doesn't start with a scheme ("http://" or "https://"),
+    // assume it's a URL and prepend "https://"
+    val urlWithScheme = if (!input.startsWith(httpsScheme) && !input.startsWith(httpScheme)) {
+        "$httpsScheme://$input"
+    } else {
+        input
+    }
+
+    val url = Uri.parse(urlWithScheme).let {
+        if (it.scheme != httpsScheme) {
+            it.buildUpon().scheme(httpsScheme).build()
+        } else {
+            it
+        }
+    }
+
+    return url.toString()
 }
 
 @Composable
@@ -230,7 +252,6 @@ private fun ImagePicker(
     imageUriState: MutableState<Uri?>
 ) {
     // TODO: select image from camera
-    // TODO: delete image, change image
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
         onResult = { uri ->
