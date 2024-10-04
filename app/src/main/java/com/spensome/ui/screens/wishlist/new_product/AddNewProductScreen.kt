@@ -37,7 +37,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -53,13 +52,11 @@ import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.rememberAsyncImagePainter
 import com.example.spensome.R
-import com.spensome.model.Product
 import com.spensome.ui.theme.SpensomeTheme
 
 private enum class ProductFieldType {
@@ -72,14 +69,10 @@ private enum class ProductFieldType {
 @Composable
 fun AddNewProductScreen(
     modifier: Modifier = Modifier,
-    onProductAdded: (Product) -> Unit = {},
+    state: NewProductState = NewProductState(),
+    onEvent: (NewProductEvent) -> Unit = {},
     onBackClicked: () -> Unit = {}
 ) {
-    // TODO: save state on config change
-    val name = remember { mutableStateOf(TextFieldValue()) }
-    val price = remember { mutableStateOf(TextFieldValue()) }
-    val link = remember { mutableStateOf(TextFieldValue()) }
-    val imageUri = remember { mutableStateOf<Uri?>(null) }
     val focusManager = LocalFocusManager.current
 
     Scaffold(
@@ -87,7 +80,7 @@ fun AddNewProductScreen(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "New product",
+                        text = "New item",
                         style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.primary
                     )
@@ -121,37 +114,43 @@ fun AddNewProductScreen(
                 )
         ) {
             ProductField(
+                modifier = Modifier.padding(
+                    bottom = dimensionResource(id = R.dimen.padding_medium)
+                ),
                 labelId = R.string.product_title,
-                fieldValueState = name,
-                modifier = Modifier.padding(
-                    bottom = dimensionResource(id = R.dimen.padding_medium)
-                ),
-                isRequired = true
-            )
-
-            ProductField(
-                labelId = R.string.product_price,
-                fieldValueState = price,
-                productFieldType = ProductFieldType.NUMBER,
-                modifier = Modifier.padding(
-                    bottom = dimensionResource(id = R.dimen.padding_medium)
-                ),
+                fieldValue = state.name,
                 isRequired = true,
-                suffix = " $"
+                onValueChange = { onEvent(NewProductEvent.ChangeName(name = it)) }
             )
 
-            // TODO: validate link
             ProductField(
+                modifier = Modifier.padding(
+                    bottom = dimensionResource(id = R.dimen.padding_medium)
+                ),
+                labelId = R.string.product_price,
+                fieldValue = state.price.toString(),
+                productFieldType = ProductFieldType.NUMBER,
+                isRequired = true,
+                suffix = " $",
+                onValueChange = { onEvent(NewProductEvent.ChangePrice(price = it)) }
+            )
+
+            // TODO: show link error text
+            ProductField(
+                modifier = Modifier.padding(
+                    bottom = dimensionResource(id = R.dimen.padding_medium)
+                ),
                 labelId = R.string.product_link,
-                fieldValueState = link,
+                fieldValue = state.link ?: "",
                 productFieldType = ProductFieldType.LINK,
                 isLastField = true,
-                modifier = Modifier.padding(
-                    bottom = dimensionResource(id = R.dimen.padding_medium)
-                )
+                onValueChange = { onEvent(NewProductEvent.ChangeLink(link = it)) }
             )
 
-            ImagePicker(imageUriState = imageUri)
+            ImagePicker(
+                imageUri = state.imageUri,
+                onImageChanged = { onEvent(NewProductEvent.SelectImage(uri = it)) }
+            )
 
             Spacer(modifier = Modifier.weight(weight = 1f))
 
@@ -159,17 +158,8 @@ fun AddNewProductScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(alignment = Alignment.CenterHorizontally),
-                enabled = name.value.text.isNotBlank() && price.value.text.isNotBlank(),
-                onClick = {
-                    onProductAdded(
-                        Product(
-                            title = name.value.text,
-                            price = price.value.text.toFloatOrNull() ?: 0f,
-                            link = parseUri(link.value.text),
-                            imageUri = imageUri.value
-                        )
-                    )
-                }
+                enabled = state.name.isNotBlank() && state.price != 0.0f,
+                onClick = { onEvent(NewProductEvent.AddToWishListClicked) }
             ) {
                 Text(text = "ADD TO WISHLIST")
             }
@@ -177,42 +167,21 @@ fun AddNewProductScreen(
     }
 }
 
-private fun parseUri(input: String): String {
-    val httpsScheme = "https"
-    val httpScheme = "http"
-    // If the input doesn't start with a scheme ("http://" or "https://"),
-    // assume it's a URL and prepend "https://"
-    val urlWithScheme = if (!input.startsWith(httpsScheme) && !input.startsWith(httpScheme)) {
-        "$httpsScheme://$input"
-    } else {
-        input
-    }
-
-    val url = Uri.parse(urlWithScheme).let {
-        if (it.scheme != httpsScheme) {
-            it.buildUpon().scheme(httpsScheme).build()
-        } else {
-            it
-        }
-    }
-
-    return url.toString()
-}
-
 @Composable
 private fun ProductField(
     modifier: Modifier = Modifier,
     @StringRes labelId: Int,
-    fieldValueState: MutableState<TextFieldValue>,
+    fieldValue: String,
     productFieldType: ProductFieldType = ProductFieldType.STRING,
     isLastField: Boolean = false,
     isRequired: Boolean = false,
-    suffix: String? = null
+    suffix: String? = null,
+    onValueChange: (String) -> Unit = {}
 ) {
     var isError by remember { mutableStateOf(false) }
     OutlinedTextField(
         modifier = modifier.fillMaxWidth(),
-        value = fieldValueState.value,
+        value = fieldValue,
         label = {
             var label = stringResource(id = labelId)
             if (isRequired) {
@@ -221,8 +190,8 @@ private fun ProductField(
             Text(text = label)
         },
         onValueChange = {
-            fieldValueState.value = it
-            isError = isRequired && fieldValueState.value.text.isBlank()
+            onValueChange(it)
+            isError = isRequired && fieldValue.isBlank()
         },
         keyboardOptions = KeyboardOptions(
             imeAction = if (isLastField) ImeAction.Done else ImeAction.Next,
@@ -249,14 +218,15 @@ private fun ProductField(
 @Composable
 private fun ImagePicker(
     modifier: Modifier = Modifier,
-    imageUriState: MutableState<Uri?>
+    imageUri: Uri?,
+    onImageChanged: (Uri?) -> Unit
 ) {
     // TODO: select image from camera
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.GetContent(),
         onResult = { uri ->
             uri?.let {
-                imageUriState.value = uri
+                onImageChanged(uri)
             }
         }
     )
@@ -268,7 +238,7 @@ private fun ImagePicker(
             color = MaterialTheme.colorScheme.onBackground
         )
 
-        if (imageUriState.value == null) {
+        if (imageUri == null) {
             Card(modifier = Modifier.size(100.dp)) {
                 Box(
                     modifier = Modifier
@@ -295,7 +265,7 @@ private fun ImagePicker(
             ) {
                 Box(modifier = Modifier.fillMaxSize()) {
                     Image(
-                        painter = rememberAsyncImagePainter(model = imageUriState.value),
+                        painter = rememberAsyncImagePainter(model = imageUri),
                         contentDescription = null,
                         modifier = Modifier.size(size = 100.dp),
                         contentScale = ContentScale.Crop
@@ -310,7 +280,7 @@ private fun ImagePicker(
                             containerColor = MaterialTheme.colorScheme.background,
                             contentColor = MaterialTheme.colorScheme.error
                         ),
-                        onClick = { imageUriState.value = null },
+                        onClick = { onImageChanged(null) },
                         content = {
                             Icon(
                                 imageVector = Icons.Rounded.Clear,

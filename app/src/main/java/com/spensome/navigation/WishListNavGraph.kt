@@ -6,13 +6,16 @@ import androidx.compose.runtime.getValue
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.spensome.ui.screens.wishlist.WishListEvent
 import com.spensome.ui.screens.wishlist.WishListScreen
 import com.spensome.ui.screens.wishlist.WishListViewModel
 import com.spensome.ui.screens.wishlist.new_product.AddNewProductScreen
+import com.spensome.ui.screens.wishlist.new_product.NewProductViewModel
 
 @Composable
-fun WishListNavGraph(wishListViewModel: WishListViewModel) {
+fun WishListNavGraph(
+    wishListViewModel: WishListViewModel,
+    newProductViewModel: NewProductViewModel
+) {
     val navController = rememberNavController()
 
     NavHost(
@@ -29,14 +32,11 @@ fun WishListNavGraph(wishListViewModel: WishListViewModel) {
         }
 
         composable(route = WishListDestination.NEW_PRODUCT) {
+            val state by newProductViewModel.state.collectAsState()
             AddNewProductScreen(
-                onProductAdded = { newProduct ->
-                    wishListViewModel.onEvent(WishListEvent.AddNewProduct(product = newProduct))
-                    navController.popBackStack()
-                },
-                onBackClicked = {
-                    navController.popBackStack()
-                }
+                state = state,
+                onEvent = newProductViewModel::onEvent,
+                onBackClicked = { navController.navigateUp() }
             )
         }
     }
