@@ -2,6 +2,7 @@ package com.spensome.ui.screens.wishlist.new_product
 
 import android.net.Uri
 import androidx.lifecycle.ViewModel
+import com.example.spensome.R
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -23,19 +24,44 @@ class NewProductViewModel : ViewModel() {
     // region private
 
     private fun handleAddToWishListClicked() {
-        state.value.link.let { link ->
-            validateLink(link = link)
-            if (!state.value.linkHasError) {
-                //addToWishList() // TODO
-            }
+        if (isTitleValid()
+                .and(isPriceValid())
+                .and(isLinkValid())
+        ) {
+            //addToWishList() // TODO
         }
     }
 
-    private fun validateLink(link: String?) {
-        val isValid = link.isNullOrEmpty() || isLinkValid(parseUri(link))
-        _state.update {
-            it.copy(linkHasError = !isValid)
+    private fun isLinkValid(): Boolean {
+        state.value.link.let { link ->
+            val isValid = link.isNullOrEmpty() || checkLinkValid(parseUri(link))
+            _state.update {
+                it.copy(
+                    linkErrorId = if (isValid) {
+                        null
+                    } else {
+                        R.string.new_product_invalid_link_error
+                    }
+                )
+            }
+            return isValid
         }
+    }
+
+    private fun isTitleValid(): Boolean {
+        val isValid = state.value.title.isNotEmpty()
+        _state.update {
+            it.copy(titleErrorId = if (isValid) null else R.string.required_field_error)
+        }
+        return isValid
+    }
+
+    private fun isPriceValid(): Boolean {
+        val isValid = state.value.price > 0.0f
+        _state.update {
+            it.copy(priceErrorId = if (isValid) null else R.string.required_field_error)
+        }
+        return isValid
     }
 
     private fun updateLink(link: String) {
@@ -46,7 +72,7 @@ class NewProductViewModel : ViewModel() {
 
     private fun updateName(name: String) {
         _state.update {
-            it.copy(name = name)
+            it.copy(title = name)
         }
     }
 
@@ -62,7 +88,7 @@ class NewProductViewModel : ViewModel() {
         }
     }
 
-    private fun isLinkValid(link: String): Boolean {
+    private fun checkLinkValid(link: String): Boolean {
         val httpsPattern =
             "^https://(?:www\\.)?[a-zA-Z0-9-]+(?:\\.[a-zA-Z]+)+(?::\\d{1,5})?(?:/\\S*)?$".toRegex()
         return link.matches(httpsPattern)

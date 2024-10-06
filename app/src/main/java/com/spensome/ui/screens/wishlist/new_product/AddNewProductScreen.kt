@@ -13,6 +13,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -37,10 +38,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -80,7 +78,7 @@ fun AddNewProductScreen(
             CenterAlignedTopAppBar(
                 title = {
                     Text(
-                        text = "New item",
+                        text = stringResource(R.string.new_product_screen_title),
                         style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.primary
                     )
@@ -118,9 +116,10 @@ fun AddNewProductScreen(
                     bottom = dimensionResource(id = R.dimen.padding_medium)
                 ),
                 labelId = R.string.product_title,
-                fieldValue = state.name,
+                fieldValue = state.title,
                 isRequired = true,
-                onValueChange = { onEvent(NewProductEvent.ChangeName(name = it)) }
+                onValueChange = { onEvent(NewProductEvent.ChangeName(name = it)) },
+                errorResId = state.titleErrorId
             )
 
             ProductField(
@@ -132,10 +131,10 @@ fun AddNewProductScreen(
                 productFieldType = ProductFieldType.NUMBER,
                 isRequired = true,
                 suffix = " $",
-                onValueChange = { onEvent(NewProductEvent.ChangePrice(price = it)) }
+                onValueChange = { onEvent(NewProductEvent.ChangePrice(price = it)) },
+                errorResId = state.priceErrorId
             )
 
-            // TODO: show link error text
             ProductField(
                 modifier = Modifier.padding(
                     bottom = dimensionResource(id = R.dimen.padding_medium)
@@ -144,7 +143,8 @@ fun AddNewProductScreen(
                 fieldValue = state.link ?: "",
                 productFieldType = ProductFieldType.LINK,
                 isLastField = true,
-                onValueChange = { onEvent(NewProductEvent.ChangeLink(link = it)) }
+                onValueChange = { onEvent(NewProductEvent.ChangeLink(link = it)) },
+                errorResId = state.linkErrorId
             )
 
             ImagePicker(
@@ -158,7 +158,6 @@ fun AddNewProductScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(alignment = Alignment.CenterHorizontally),
-                enabled = state.name.isNotBlank() && state.price != 0.0f,
                 onClick = { onEvent(NewProductEvent.AddToWishListClicked) }
             ) {
                 Text(text = "ADD TO WISHLIST")
@@ -176,22 +175,24 @@ private fun ProductField(
     isLastField: Boolean = false,
     isRequired: Boolean = false,
     suffix: String? = null,
-    onValueChange: (String) -> Unit = {}
+    onValueChange: (String) -> Unit = {},
+    @StringRes errorResId: Int? = null
 ) {
-    var isError by remember { mutableStateOf(false) }
+    val isError = remember(key1 = errorResId) { errorResId != null }
+
     OutlinedTextField(
         modifier = modifier.fillMaxWidth(),
         value = fieldValue,
         label = {
-            var label = stringResource(id = labelId)
-            if (isRequired) {
-                label += " *"
+            Row {
+                Text(text = stringResource(id = labelId))
+                if (isRequired) {
+                    Text(text = " *", color = MaterialTheme.colorScheme.error)
+                }
             }
-            Text(text = label)
         },
         onValueChange = {
             onValueChange(it)
-            isError = isRequired && fieldValue.isBlank()
         },
         keyboardOptions = KeyboardOptions(
             imeAction = if (isLastField) ImeAction.Done else ImeAction.Next,
@@ -206,12 +207,14 @@ private fun ProductField(
     )
 
     if (isError) {
-        Text(
-            text = "Field is required",
-            color = MaterialTheme.colorScheme.error,
-            fontSize = 12.sp,
-            modifier = Modifier.padding(start = 16.dp)
-        )
+        errorResId?.let {
+            Text(
+                text = stringResource(it),
+                color = MaterialTheme.colorScheme.error,
+                fontSize = 12.sp,
+                modifier = Modifier.padding(start = 16.dp)
+            )
+        }
     }
 }
 

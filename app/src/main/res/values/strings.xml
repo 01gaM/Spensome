@@ -7,4 +7,9 @@
     <string name="product_price">Price</string>
     <string name="product_link">Link</string>
     <string name="product_image">Image</string>
+    <string name="required_field_error">Field required</string>
+
+    <!--    AddNewProductScreen-->
+    <string name="new_product_screen_title">New item</string>
+    <string name="new_product_invalid_link_error">Invalid link</string>
 </resources>
