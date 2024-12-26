@@ -36,7 +36,7 @@ fun WishListNavGraph(
             AddNewProductScreen(
                 state = state,
                 onEvent = newProductViewModel::onEvent,
-                onBackClicked = { navController.navigateUp() }
+                onNavigateUp = { navController.navigateUp() }
             )
         }
     }

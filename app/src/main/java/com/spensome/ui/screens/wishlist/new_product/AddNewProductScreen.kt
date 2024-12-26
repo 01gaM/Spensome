@@ -69,7 +69,7 @@ fun AddNewProductScreen(
     modifier: Modifier = Modifier,
     state: NewProductState = NewProductState(),
     onEvent: (NewProductEvent) -> Unit = {},
-    onBackClicked: () -> Unit = {}
+    onNavigateUp: () -> Unit = {}
 ) {
     val focusManager = LocalFocusManager.current
 
@@ -84,7 +84,7 @@ fun AddNewProductScreen(
                     )
                 },
                 navigationIcon = {
-                    IconButton(onClick = onBackClicked) {
+                    IconButton(onClick = onNavigateUp) {
                         Icon(
                             imageVector = Icons.Filled.ArrowBack,
                             contentDescription = "Arrow back icon",
@@ -154,6 +154,7 @@ fun AddNewProductScreen(
 
             Spacer(modifier = Modifier.weight(weight = 1f))
 
+            // TODO: disable button
             Button(
                 modifier = Modifier
                     .fillMaxWidth()

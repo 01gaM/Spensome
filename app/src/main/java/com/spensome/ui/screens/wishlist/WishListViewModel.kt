@@ -1,14 +1,22 @@
 package com.spensome.ui.screens.wishlist
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.spensome.data.Item
+import com.spensome.data.ItemsRepository
 import com.spensome.model.Product
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
-class WishListViewModel : ViewModel() {
+class WishListViewModel(private val itemsRepository: ItemsRepository) : ViewModel() {
     private val _state = MutableStateFlow(WishListState())
     val state = _state.asStateFlow()
+
+    init {
+        initProductsList()
+    }
 
     fun onEvent(event: WishListEvent) {
         when (event) {
@@ -22,9 +30,18 @@ class WishListViewModel : ViewModel() {
         }
     }
 
-    fun updateProductsList(products: List<Product>) {
-        _state.update {
-            it.copy(productsList = products)
+    private fun initProductsList() {
+        viewModelScope.launch {
+            itemsRepository.getAllItemsStream().collect { items ->
+                _state.update {
+                    it.copy(productsList = items.map { item ->
+                        Product(
+                            title = item.name,
+                            price = item.price
+                        )
+                    })
+                }
+            }
         }
     }
 
@@ -37,11 +54,11 @@ class WishListViewModel : ViewModel() {
     }
 
     private fun addNewProduct(product: Product) {
+        viewModelScope.launch {
+            itemsRepository.insertItem(product.toItem())
+        }
         _state.update {
-            val newProductList = it.productsList.toMutableList()
-            newProductList.add(product)
             it.copy(
-                productsList = newProductList,
                 shouldScrollToBottom = true
             )
         }
@@ -51,6 +68,10 @@ class WishListViewModel : ViewModel() {
         _state.update {
             it.copy(shouldScrollToBottom = shouldScroll)
         }
+    }
+
+    private fun Product.toItem(): Item {
+        return Item(name = this.title, price = this.price)
     }
 
     // endregion

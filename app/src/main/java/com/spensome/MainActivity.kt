@@ -11,12 +11,12 @@ import com.spensome.ui.screens.wishlist.WishListViewModel
 import com.spensome.ui.screens.wishlist.new_product.NewProductViewModel
 
 class MainActivity : ComponentActivity() {
+    // TODO: pass repository to init
     private val wishListViewModel by viewModels<WishListViewModel>()
     private val newProductViewModel by viewModels<NewProductViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        loadProductsList()
         setContent {
             SpensomeTheme {
                 WishListNavGraph(
@@ -25,9 +25,5 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
-    }
-
-    private fun loadProductsList() {
-        wishListViewModel.updateProductsList(products = ProductsRepository.products)
     }
 }
