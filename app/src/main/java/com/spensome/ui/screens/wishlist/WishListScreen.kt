@@ -50,7 +50,6 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import coil.compose.rememberAsyncImagePainter
 import com.example.spensome.R
-import com.spensome.data.ProductsRepository
 import com.spensome.model.Product
 import com.spensome.navigation.WishListDestination
 import com.spensome.ui.screens.wishlist.selected_product.ProductScreen
@@ -96,29 +95,30 @@ fun WishListScreen(
             }
         }
     ) { paddingValues ->
-        Column(
-            modifier = modifier
-                .background(color = MaterialTheme.colorScheme.background)
-                .fillMaxSize()
-                .padding(paddingValues = paddingValues),
-            verticalArrangement = Arrangement.Center
-        ) {
-            if (state.productsList.isEmpty()) {
+        if (state.productsList.isEmpty()) {
+            Column(
+                modifier = modifier
+                    .background(color = MaterialTheme.colorScheme.background)
+                    .fillMaxSize()
+                    .padding(paddingValues = paddingValues),
+                verticalArrangement = Arrangement.Center
+            ) {
                 Text(
                     modifier = Modifier.align(Alignment.CenterHorizontally),
                     text = stringResource(id = R.string.wishlist_empty_message),
                     style = MaterialTheme.typography.titleLarge,
                     color = MaterialTheme.colorScheme.secondary.copy(alpha = 0.5f)
                 )
-            } else {
-                WishList(
-                    products = state.productsList,
-                    gridState = gridState,
-                    onProductSelected = { product ->
-                        onEvent(WishListEvent.SelectProduct(product))
-                    }
-                )
             }
+        } else {
+            WishList(
+                modifier = Modifier.padding(paddingValues),
+                products = state.productsList,
+                gridState = gridState,
+                onProductSelected = { product ->
+                    onEvent(WishListEvent.SelectProduct(product))
+                }
+            )
         }
 
         state.selectedProduct?.let { product ->
@@ -244,6 +244,41 @@ fun WishListTopBar(modifier: Modifier = Modifier) {
 
 // region preview
 
+private val products: List<Product> = listOf(
+    Product(
+        title = "Test",
+        price = 105f
+    ),
+    Product(
+        title = "iPhone",
+        price = 600f
+    ),
+    Product(
+        title = "High heels",
+        price = 300f
+    ),
+    Product(
+        title = "Something really cool",
+        price = 100000f
+    ),
+    Product(
+        title = "Test",
+        price = 105f
+    ),
+    Product(
+        title = "iPhone",
+        price = 600f
+    ),
+    Product(
+        title = "High heels",
+        price = 300f
+    ),
+    Product(
+        title = "Something really cool",
+        price = 100000f
+    )
+)
+
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_NO)
 @Preview(
     uiMode = Configuration.UI_MODE_NIGHT_YES,
@@ -253,7 +288,7 @@ fun WishListTopBar(modifier: Modifier = Modifier) {
 private fun WishListScreenPreview() {
     SpensomeTheme {
         WishListScreen(
-            state = WishListState().copy(productsList = ProductsRepository.products)
+            state = WishListState().copy(productsList = products)
         )
     }
 }
