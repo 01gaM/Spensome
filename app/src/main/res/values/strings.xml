@@ -12,4 +12,5 @@
     <!--    AddNewProductScreen-->
     <string name="new_product_screen_title">New item</string>
     <string name="new_product_invalid_link_error">Invalid link</string>
+    <string name="new_product_add_button">Add to wishlist</string>
 </resources>

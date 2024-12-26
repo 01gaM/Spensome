@@ -159,9 +159,12 @@ fun AddNewProductScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .align(alignment = Alignment.CenterHorizontally),
-                onClick = { onEvent(NewProductEvent.AddToWishListClicked) }
+                onClick = {
+                    onEvent(NewProductEvent.AddToWishListClicked)
+                    onNavigateUp()
+                }
             ) {
-                Text(text = "ADD TO WISHLIST")
+                Text(text = stringResource(R.string.new_product_add_button).uppercase())
             }
         }
     }

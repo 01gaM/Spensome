@@ -2,12 +2,22 @@ package com.spensome.ui.screens.wishlist.new_product
 
 import android.net.Uri
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.spensome.R
+import com.spensome.data.Item
+import com.spensome.data.ItemsRepository
+import com.spensome.model.Product
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class NewProductViewModel : ViewModel() {
+@HiltViewModel
+class NewProductViewModel @Inject constructor(
+    private val itemsRepository: ItemsRepository
+) : ViewModel() {
     private val _state = MutableStateFlow(NewProductState())
     val state = _state.asStateFlow()
 
@@ -28,7 +38,22 @@ class NewProductViewModel : ViewModel() {
                 .and(isPriceValid())
                 .and(isLinkValid())
         ) {
-            //addToWishList() // TODO
+            with(state.value) {
+                addNewProduct(
+                    Product(
+                        title = title,
+                        price = price,
+                        link = link,
+                        imageUri = imageUri
+                    )
+                )
+            }
+        }
+    }
+
+    private fun addNewProduct(product: Product) {
+        viewModelScope.launch {
+            itemsRepository.insertItem(product.toItem())
         }
     }
 
@@ -114,6 +139,10 @@ class NewProductViewModel : ViewModel() {
         }
 
         return url.toString()
+    }
+
+    private fun Product.toItem(): Item {
+        return Item(name = this.title, price = this.price)
     }
 
     // endregion

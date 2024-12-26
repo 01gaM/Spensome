@@ -4,7 +4,6 @@ import com.spensome.model.Product
 
 sealed interface WishListEvent {
     data class SelectProduct(val product: Product) : WishListEvent
-    object CloseSelectedProduct : WishListEvent
-    data class AddNewProduct(val product: Product) : WishListEvent
-    object ScrollToBottom : WishListEvent
+    data object CloseSelectedProduct : WishListEvent
+    data object ScrollToBottom : WishListEvent
 }
