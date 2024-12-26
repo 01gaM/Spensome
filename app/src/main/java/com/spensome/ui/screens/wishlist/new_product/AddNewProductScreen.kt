@@ -38,7 +38,6 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -73,8 +72,6 @@ fun AddNewProductScreen(
     onNavigateUp: () -> Unit = {}
 ) {
     val focusManager = LocalFocusManager.current
-
-    LaunchedEffect(key1 = Unit) { onEvent(NewProductEvent.ScreenLaunched) }
 
     Scaffold(
         topBar = {
