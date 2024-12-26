@@ -8,4 +8,5 @@ sealed interface NewProductEvent {
     data class ChangeLink(val link: String) : NewProductEvent
     data class SelectImage(val uri: Uri?) : NewProductEvent
     data object AddToWishListClicked: NewProductEvent
+    data object ScreenLaunched: NewProductEvent
 }

@@ -28,6 +28,7 @@ class NewProductViewModel @Inject constructor(
             is NewProductEvent.ChangeName -> updateName(name = event.name)
             is NewProductEvent.ChangePrice -> updatePrice(price = event.price)
             is NewProductEvent.SelectImage -> updateImage(imageUri = event.uri)
+            is NewProductEvent.ScreenLaunched -> clearState()
         }
     }
 
@@ -112,6 +113,8 @@ class NewProductViewModel @Inject constructor(
             it.copy(imageUri = imageUri)
         }
     }
+
+    private fun clearState() = _state.update { NewProductState() }
 
     private fun checkLinkValid(link: String): Boolean {
         val httpsPattern =
