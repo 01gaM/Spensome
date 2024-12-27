@@ -1,23 +1,29 @@
 package com.spensome.ui.screens.wishlist.new_product
 
+import android.app.Application
 import android.net.Uri
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.spensome.R
 import com.spensome.data.Item
 import com.spensome.data.ItemsRepository
 import com.spensome.model.Product
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileOutputStream
 import javax.inject.Inject
 
 @HiltViewModel
 class NewProductViewModel @Inject constructor(
-    private val itemsRepository: ItemsRepository
-) : ViewModel() {
+    private val itemsRepository: ItemsRepository,
+    application: Application
+) : AndroidViewModel(application) {
     private val _state = MutableStateFlow(NewProductState())
     val state = _state.asStateFlow()
 
@@ -53,8 +59,33 @@ class NewProductViewModel @Inject constructor(
 
     private fun addNewProduct(product: Product) {
         viewModelScope.launch {
-            itemsRepository.insertItem(product.toItem())
+            withContext(Dispatchers.IO) {
+                val savedImageUri = product.imageUri?.let {
+                    saveImageToLocalStorage(it)
+                }
+                itemsRepository.insertItem(product.toItem(imageUri = savedImageUri))
+            }
         }
+    }
+
+    private fun saveImageToLocalStorage(tempImageUri: Uri): String? {
+        val context = getApplication<Application>().applicationContext
+        val contentResolver = context.contentResolver
+        val fileName = "image_${System.currentTimeMillis()}.jpg"
+        val file = File(context.filesDir, fileName)
+
+        try {
+            contentResolver.openInputStream(tempImageUri)?.use { inputStream ->
+                FileOutputStream(file).use { outputStream ->
+                    inputStream.copyTo(outputStream)
+                }
+            }
+            return file.absolutePath
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        return null
     }
 
     private fun isLinkValid(): Boolean {
@@ -141,8 +172,13 @@ class NewProductViewModel @Inject constructor(
         return url.toString()
     }
 
-    private fun Product.toItem(): Item {
-        return Item(name = this.title, price = this.price)
+    private fun Product.toItem(imageUri: String?): Item {
+        return Item(
+            name = title,
+            price = price,
+            imageUri = imageUri,
+            link = link
+        )
     }
 
     // endregion

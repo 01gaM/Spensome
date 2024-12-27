@@ -1,5 +1,6 @@
 package com.spensome.ui.screens.wishlist
 
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.spensome.data.ItemsRepository
@@ -39,7 +40,13 @@ class WishListViewModel @Inject constructor(
                     it.copy(productsList = items.map { item ->
                         Product(
                             title = item.name,
-                            price = item.price
+                            price = item.price,
+                            imageUri = try {
+                                Uri.parse(item.imageUri)
+                            } catch (e: NullPointerException) {
+                                null
+                            },
+                            link = item.link
                         )
                     })
                 }
